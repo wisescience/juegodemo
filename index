@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detectives de tesis | Juego educativo</title>
+<style>
+:root {
+  --azul:#173b67;
+  --turquesa:#00a99d;
+  --fondo:#f3f7fb;
+  --texto:#263445;
+  --gris:#68798b;
+  --verde:#16804b;
+  --rojo:#c13e45;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:system-ui,Arial,sans-serif;
+  color:var(--texto);
+  background:var(--fondo);
+}
+header {
+  background:var(--azul);
+  color:white;
+  padding:18px 25px;
+  text-align:center;
+}
+header h1 { margin:0; font-size:1.55rem; }
+header p { margin:7px 0 0; opacity:.85; }
+main {
+  max-width:850px;
+  margin:35px auto;
+  padding:0 18px;
+}
+.panel {
+  background:white;
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 8px 30px #173b6714;
+}
+h2 { color:var(--azul); }
+.center { text-align:center; }
+button {
+  cursor:pointer;
+  font:inherit;
+  border-radius:12px;
+  transition:.15s;
+}
+.primary {
+  background:var(--turquesa);
+  border:0;
+  color:white;
+  padding:14px 28px;
+  font-weight:700;
+}
+.primary:hover { filter:brightness(.92); }
+.primary:disabled { opacity:.45; cursor:not-allowed; }
+.secondary {
+  background:white;
+  border:1px solid #cbd7e3;
+  padding:12px 20px;
+  color:var(--azul);
+}
+.levels {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:24px 0;
+}
+.level {
+  padding:18px 8px;
+  background:#f4f8fc;
+  border:2px solid #dbe5f0;
+  font-weight:600;
+}
+.level.active {
+  border-color:var(--turquesa);
+  background:#e2f8f5;
+  color:#086c63;
+}
+.level small {
+  display:block;
+  font-weight:400;
+  margin-top:7px;
+}
+.topline {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-weight:700;
+  color:var(--azul);
+}
+.progress {
+  background:#e5ecf3;
+  height:10px;
+  border-radius:12px;
+  margin:15px 0 24px;
+  overflow:hidden;
+}
+.bar {
+  width:0;
+  height:100%;
+  background:var(--turquesa);
+  transition:width .3s;
+}
+.fragment {
+  background:#f3f7fb;
+  border-left:5px solid var(--turquesa);
+  border-radius:8px;
+  padding:22px;
+  margin:22px 0;
+  font-size:1.1rem;
+  line-height:1.7;
+}
+.options {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.option {
+  background:white;
+  border:2px solid #dce5ef;
+  padding:17px;
+  text-align:left;
+  font-weight:600;
+}
+.option:hover:not(:disabled) {
+  border-color:var(--turquesa);
+  background:#effaf8;
+}
+.option.correct {
+  background:#e2f6e9;
+  border-color:var(--verde);
+  color:var(--verde);
+}
+.option.wrong {
+  background:#fdebec;
+  border-color:var(--rojo);
+  color:var(--rojo);
+}
+.option:disabled { cursor:default; }
+.feedback {
+  display:none;
+  padding:18px;
+  margin-top:22px;
+  border-radius:12px;
+  line-height:1.6;
+}
+.feedback.good { background:#e5f7ec; }
+.feedback.bad { background:#fff0ec; }
+.actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  margin-top:24px;
+}
+.hidden { display:none; }
+.bigscore {
+  color:var(--turquesa);
+  font-size:4rem;
+  font-weight:800;
+}
+.tag {
+  display:inline-block;
+  padding:7px 12px;
+  background:#e3f7f4;
+  border-radius:30px;
+  color:#08776e;
+  font-weight:700;
+}
+footer {
+  text-align:center;
+  color:var(--gris);
+  padding:24px;
+  font-size:.85rem;
+}
+button:focus-visible {
+  outline:3px solid #efae38;
+  outline-offset:3px;
+}
+@media(max-width:600px) {
+  .panel { padding:22px 17px; }
+  .options,.levels { grid-template-columns:1fr; }
+  .fragment { font-size:1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔎 Detectives de tesis</h1>
+  <p>¿Puedes reconocer las partes de una investigación?</p>
+</header>
+
+<main>
+<section class="panel center" id="welcome">
+  <div style="font-size:4rem">🎓</div>
+  <h2>¡Conviértete en detective académico!</h2>
+  <p>
+    Analiza fragmentos de investigaciones y descubre
+    a qué apartado de una tesis pertenecen.
+  </p>
+  <p>Selecciona tu nivel de desafío:</p>
+
+  <div class="levels">
+    <button class="level active" data-level="1">
+      🟢 Nivel 1
+      <small>Identificar</small>
+    </button>
+    <button class="level" data-level="2">
+      🟡 Nivel 2
+      <small>Diferenciar</small>
+    </button>
+    <button class="level" data-level="3">
+      🔴 Nivel 3
+      <small>Analizar</small>
+    </button>
+  </div>
+
+  <p>10 desafíos · 10 puntos por acierto</p>
+  <button class="primary" id="start">Comenzar juego →</button>
+</section>
+
+<section class="panel hidden" id="game">
+  <div class="topline">
+    <span id="counter"></span>
+    <span id="score"></span>
+  </div>
+  <div class="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <span class="tag" id="levelTag"></span>
+  <h2>¿A qué apartado de una tesis pertenece?</h2>
+
+  <div class="fragment" id="fragment"></div>
+  <div class="options" id="options"></div>
+
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+
+  <div class="actions">
+    <button class="primary hidden" id="next">
+      Siguiente pregunta →
+    </button>
+  </div>
+</section>
+
+<section class="panel center hidden" id="end">
+  <div style="font-size:4rem" id="medal">🏆</div>
+  <h2>¡Investigación completada!</h2>
+  <p>Tu resultado final:</p>
+  <div class="bigscore" id="finalScore"></div>
+  <p id="finalMessage"></p>
+  <p id="finalDetail"></p>
+  <button class="primary" id="again">
+    Jugar nuevamente
+  </button>
+</section>
+</main>
+
+<footer>
+  Recurso educativo interactivo · Metodología de la investigación
+</footer>
+
+<script>
+"use strict";
+
+/*
+ Banco de 30 preguntas.
+ answer indica la respuesta correcta.
+ explanation explica el fundamento académico.
+*/
+const questions = [
+  // NIVEL 1: IDENTIFICAR
+  {
+    level:1,
+    text:"El propósito de esta investigación es analizar la relación entre el uso de plataformas educativas y el rendimiento académico.",
+    answer:"Objetivos",
+    explanation:"Expresa aquello que la investigación pretende alcanzar."
+  },
+  {
+    level:1,
+    text:"Se realizó un estudio cuantitativo con diseño no experimental y una muestra de 240 estudiantes universitarios.",
+    answer:"Metodología",
+    explanation:"Describe el enfoque, el diseño y la muestra del estudio."
+  },
+  {
+    level:1,
+    text:"El 78 % de los participantes manifestó utilizar herramientas digitales diariamente para estudiar.",
+    answer:"Resultados",
+    explanation:"Presenta un hallazgo obtenido mediante la recolección y el análisis de datos."
+  },
+  {
+    level:1,
+    text:"La alfabetización digital comprende conocimientos, habilidades y actitudes necesarias para participar críticamente en entornos tecnológicos.",
+    answer:"Marco teórico",
+    explanation:"Explica un concepto que fundamenta el estudio."
+  },
+  {
+    level:1,
+    text:"Aunque las universidades han incorporado plataformas digitales, todavía se desconoce cómo influyen en el aprendizaje autónomo.",
+    answer:"Planteamiento del problema",
+    explanation:"Identifica una situación no resuelta que justifica investigar."
+  },
+  {
+    level:1,
+    text:"Se concluye que la formación docente debe priorizar el diseño pedagógico de actividades digitales.",
+    answer:"Conclusiones",
+    explanation:"Sintetiza una implicación derivada de los hallazgos."
+  },
+  {
+    level:1,
+    text:"Los hallazgos coinciden con estudios anteriores, aunque muestran diferencias relacionadas con el contexto institucional.",
+    answer:"Discusión",
+    explanation:"Interpreta los resultados y los relaciona con investigaciones previas."
+  },
+  {
+    level:1,
+    text:"La transformación digital ha modificado los procesos educativos y generado nuevos desafíos para las instituciones universitarias.",
+    answer:"Introducción",
+    explanation:"Presenta el contexto general del tema investigado."
+  },
+  {
+    level:1,
+    text:"Identificar las competencias digitales que poseen los estudiantes del primer semestre.",
+    answer:"Objetivos",
+    explanation:"Utiliza un verbo en infinitivo para establecer una meta específica."
+  },
+  {
+    level:1,
+    text:"Los datos fueron procesados mediante estadística descriptiva y pruebas de correlación.",
+    answer:"Metodología",
+    explanation:"Explica los procedimientos utilizados para analizar los datos."
+  },
+
+  // NIVEL 2: DIFERENCIAR
+  {
+    level:2,
+    text:"Diversos autores consideran que la autorregulación implica planificar, monitorear y evaluar el propio aprendizaje.",
+    answer:"Marco teórico",
+    explanation:"Presenta fundamentos conceptuales apoyados en la literatura."
+  },
+  {
+    level:2,
+    text:"¿Qué relación existe entre la competencia digital docente y el uso pedagógico de la inteligencia artificial?",
+    answer:"Planteamiento del problema",
+    explanation:"Formula una pregunta de investigación que orienta el estudio."
+  },
+  {
+    level:2,
+    text:"Se encontraron diferencias estadísticamente significativas entre los dos grupos (p < 0.05).",
+    answer:"Resultados",
+    explanation:"Comunica una evidencia obtenida del análisis estadístico."
+  },
+  {
+    level:2,
+    text:"Esta diferencia podría explicarse por la experiencia previa del profesorado, como sugieren investigaciones recientes.",
+    answer:"Discusión",
+    explanation:"Propone una interpretación de los hallazgos."
+  },
+  {
+    level:2,
+    text:"La encuesta se sometió a juicio de cinco especialistas para evaluar la validez de contenido.",
+    answer:"Metodología",
+    explanation:"Describe el procedimiento de validación del instrumento."
+  },
+  {
+    level:2,
+    text:"La investigación aporta evidencia útil para orientar futuros programas institucionales de formación.",
+    answer:"Conclusiones",
+    explanation:"Expresa una contribución del estudio basada en sus hallazgos."
+  },
+  {
+    level:2,
+    text:"Determinar en qué medida el uso de recursos educativos abiertos se relaciona con la autonomía estudiantil.",
+    answer:"Objetivos",
+    explanation:"Define el propósito concreto que guía la investigación."
+  },
+  {
+    level:2,
+    text:"A pesar del crecimiento de la educación híbrida, existen pocos estudios sobre su implementación en universidades rurales.",
+    answer:"Planteamiento del problema",
+    explanation:"Identifica un vacío de conocimiento."
+  },
+  {
+    level:2,
+    text:"Las teorías socioconstructivistas destacan el papel de la interacción social en la construcción del conocimiento.",
+    answer:"Marco teórico",
+    explanation:"Se apoya en una perspectiva teórica para explicar el fenómeno."
+  },
+  {
+    level:2,
+    text:"El presente trabajo examina las oportunidades y desafíos del aprendizaje colaborativo en entornos virtuales.",
+    answer:"Introducción",
+    explanation:"Presenta de manera general el tema del trabajo."
+  },
+
+  // NIVEL 3: ANALIZAR
+  {
+    level:3,
+    text:"Si bien el grupo experimental alcanzó una media superior, el tamaño del efecto fue pequeño, lo que limita su relevancia práctica.",
+    answer:"Discusión",
+    explanation:"Valora el significado del resultado, más allá de su valor numérico."
+  },
+  {
+    level:3,
+    text:"La ausencia de estudios longitudinales impide comprender cómo evolucionan las competencias investigativas durante la formación universitaria.",
+    answer:"Planteamiento del problema",
+    explanation:"Justifica el estudio señalando una limitación del conocimiento disponible."
+  },
+  {
+    level:3,
+    text:"Se empleó un modelo de regresión múltiple controlando las variables edad, género y experiencia académica.",
+    answer:"Metodología",
+    explanation:"Describe una técnica de análisis y las variables de control."
+  },
+  {
+    level:3,
+    text:"Los coeficientes mostraron una asociación positiva entre la autoeficacia y el desempeño académico (β = 0.36).",
+    answer:"Resultados",
+    explanation:"Reporta una estimación numérica derivada del análisis."
+  },
+  {
+    level:3,
+    text:"Estos hallazgos no permiten establecer relaciones causales debido al diseño transversal utilizado.",
+    answer:"Discusión",
+    explanation:"Examina críticamente una limitación en la interpretación de los resultados."
+  },
+  {
+    level:3,
+    text:"Examinar si la motivación académica predice el rendimiento, una vez controlados los antecedentes educativos.",
+    answer:"Objetivos",
+    explanation:"Establece una finalidad analítica concreta."
+  },
+  {
+    level:3,
+    text:"Los resultados sugieren la necesidad de implementar estrategias de acompañamiento, aunque su eficacia deberá comprobarse en futuras investigaciones.",
+    answer:"Conclusiones",
+    explanation:"Plantea una implicación práctica e identifica una línea de investigación futura."
+  },
+  {
+    level:3,
+    text:"Desde la teoría de la autodeterminación, la motivación depende de la satisfacción de necesidades de autonomía, competencia y vinculación.",
+    answer:"Marco teórico",
+    explanation:"Utiliza una teoría para explicar los constructos examinados."
+  },
+  {
+    level:3,
+    text:"La expansión de la inteligencia artificial generativa ha reabierto el debate sobre la evaluación del aprendizaje en educación superior.",
+    answer:"Introducción",
+    explanation:"Contextualiza el tema antes de profundizar en el problema."
+  },
+  {
+    level:3,
+    text:"Se descartaron ocho cuestionarios incompletos y se efectuó el análisis con los 312 casos restantes.",
+    answer:"Metodología",
+    explanation:"Explica los criterios de depuración y el tratamiento de datos."
+  }
+];
+
+const categories = [
+  "Introducción",
+  "Planteamiento del problema",
+  "Objetivos",
+  "Marco teórico",
+  "Metodología",
+  "Resultados",
+  "Discusión",
+  "Conclusiones"
+];
+
+let level = 1;
+let round = [];
+let index = 0;
+let points = 0;
+let answered = false;
+
+const $ = id => document.getElementById(id);
+
+function shuffle(array) {
+  const copy = [...array];
+  for(let i=copy.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+
+function show(screen) {
+  ["welcome","game","end"].forEach(id => {
+    $(id).classList.toggle("hidden",id!==screen);
+  });
+}
+
+document.querySelectorAll(".level").forEach(btn => {
+  btn.addEventListener("click",() => {
+    level=Number(btn.dataset.level);
+    document.querySelectorAll(".level").forEach(b=>{
+      b.classList.toggle("active",b===btn);
+    });
+  });
+});
+
+function startGame() {
+  round=shuffle(questions.filter(q=>q.level===level));
+  index=0;
+  points=0;
+  show("game");
+  displayQuestion();
+}
+
+function displayQuestion() {
+  answered=false;
+  const q=round[index];
+
+  $("counter").textContent=
+    `Pregunta ${index+1} de ${round.length}`;
+  $("score").textContent=`Puntos: ${points}`;
+  $("bar").style.width=
+    `${(index/round.length)*100}%`;
+  $("levelTag").textContent=`Nivel ${level}`;
+  $("fragment").textContent=`“${q.text}”`;
+
+  $("feedback").style.display="none";
+  $("feedback").className="feedback";
+  $("next").classList.add("hidden");
+
+  // Tres distractores distintos de la respuesta correcta.
+  const distractors=shuffle(
+    categories.filter(c=>c!==q.answer)
+  ).slice(0,3);
+
+  const options=shuffle([q.answer,...distractors]);
+  const container=$("options");
+  container.innerHTML="";
+
+  options.forEach(option=>{
+    const button=document.createElement("button");
+    button.className="option";
+    button.textContent=option;
+    button.addEventListener("click",()=>check(option,button));
+    container.appendChild(button);
+  });
+}
+
+function check(selected,button) {
+  if(answered) return;
+  answered=true;
+
+  const q=round[index];
+  const correct=selected===q.answer;
+
+  if(correct) points+=10;
+
+  document.querySelectorAll(".option").forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent===q.answer) {
+      btn.classList.add("correct");
+    }
+  });
+
+  if(!correct) button.classList.add("wrong");
+
+  const feedback=$("feedback");
+  feedback.className=
+    `feedback ${correct?"good":"bad"}`;
+
+  // El texto se crea como contenido seguro.
+  feedback.innerHTML="";
+  const strong=document.createElement("strong");
+  strong.textContent=correct ?
+    "✓ ¡Respuesta correcta!" :
+    `✗ La respuesta correcta es: ${q.answer}`;
+
+  const paragraph=document.createElement("p");
+  paragraph.textContent=q.explanation;
+
+  feedback.append(strong,paragraph);
+  feedback.style.display="block";
+  $("score").textContent=`Puntos: ${points}`;
+
+  $("next").textContent=
+    index===round.length-1 ?
+    "Ver resultados →" :
+    "Siguiente pregunta →";
+
+  $("next").classList.remove("hidden");
+  $("next").focus();
+}
+
+function nextQuestion() {
+  index++;
+  if(index>=round.length) {
+    finishGame();
+  } else {
+    displayQuestion();
+  }
+}
+
+function finishGame() {
+  show("end");
+  const total=round.length*10;
+  const percentage=Math.round(points/total*100);
+
+  $("finalScore").textContent=`${points} / ${total}`;
+  $("finalDetail").textContent=
+    `Respuestas correctas: ${points/10} de ${round.length}`;
+
+  let message,medal;
+  if(percentage>=90) {
+    message="¡Excelente! Eres un detective académico experto.";
+    medal="🏆";
+  } else if(percentage>=70) {
+    message="¡Muy bien! Reconoces la mayoría de las secciones.";
+    medal="🥇";
+  } else if(percentage>=50) {
+    message="¡Buen avance! Sigue practicando tus habilidades.";
+    medal="🥈";
+  } else {
+    message="Cada intento es una oportunidad para aprender.";
+    medal="📚";
+  }
+  $("finalMessage").textContent=message;
+  $("medal").textContent=medal;
+  $("bar").style.width="100%";
+}
+
+$("start").addEventListener("click",startGame);
+$("next").addEventListener("click",nextQuestion);
+$("again").addEventListener("click",()=>show("welcome"));
+</script>
+</body>
+</html>
